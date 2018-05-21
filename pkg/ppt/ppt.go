@@ -44,15 +44,21 @@ type Presentation struct {
 // New returns a new Presentation for the given configuration
 // All templates are loaded and the presentation can be written to an io.Writer
 func New(config Config) (*Presentation, error) {
+	fmt.Printf("parsing files from %q\n", config.Path)
 	tmpl, err := template.ParseFiles(config.Path)
+	fmt.Printf("Parsed template %v\n", tmpl)
 	if err != nil {
+		fmt.Printf("error1\n")
 		return nil, fmt.Errorf("Loading ppt from: %q: %v", config.Path, err)
 	}
 	if !strings.HasPrefix(config.RefExt, ".") {
+		fmt.Println("Adding dot to RefExt")
 		config.RefExt = "." + config.RefExt
 	}
+	fmt.Println("Calling addRefTemplates")
 	refPaths, err := addRefTemplates(tmpl, config.RefDir, config.RefExt)
 	if err != nil {
+		fmt.Printf("error2\n")
 		return nil, fmt.Errorf("Loading templates from: %q: %v", config.RefDir, err)
 	}
 	return &Presentation{Config: config, root: tmpl, refPaths: refPaths}, nil
@@ -60,20 +66,24 @@ func New(config Config) (*Presentation, error) {
 
 func (ppt *Presentation) WriteTo(w io.Writer) (n int64, err error) {
 	var buf bytes.Buffer
-	ppt.root.Execute(&buf, ppt.Name)
+	err = ppt.root.Execute(&buf, ppt.Name)
+	if err != nil {
+		return -1., fmt.Errorf("Writing %q to %v: %v", ppt.Name, w, err)
+	}
 	return buf.WriteTo(w)
 }
 
 func addRefTemplates(parent *template.Template, dir string, ext string) (map[string]time.Time, error) {
 	refPaths := make(map[string]time.Time)
 	err := filepath.Walk(dir, func(path string, fi os.FileInfo, err error) error {
-		if filepath.Ext(path) == ext {
-			refPaths[path] = fi.ModTime()
+		if filepath.Ext(path) != ext {
+			return nil
 		}
+		refPaths[path] = fi.ModTime()
 		return addRefTemplate(parent, path)
 	})
 	if err != nil {
-		return nil, fmt.Errorf("Walking dir %s: %v", dir, err)
+		return nil, fmt.Errorf("Walking dir %q: %v", dir, err)
 	}
 	return refPaths, nil
 }
