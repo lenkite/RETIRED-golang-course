@@ -1,29 +1,41 @@
 <html>
 	<head>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.6.0/css/reveal.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.6.0/css/theme/solarized.min.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.6.0/css/theme/moon.min.css" />
-    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.6.0/css/theme/sky.min.css" /> -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.6.0/lib/css/zenburn.min.css" />
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.6.0/css/theme/solarized.min.css" /> -->
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.6.0/css/theme/moon.min.css" /> -->
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.6.0/css/theme/blood.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.6.0/css/theme/league.css" />
+<!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.6.0/css/theme/night.css" /> -->
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.6.0/lib/css/zenburn.min.css" />
+
+
+<style type="text/css">
+.reveal .slides > section { padding: 5px; }
+.reveal pre code {
+max-height: 500px;
+}
+</style>
 	</head>
+	
 	<body>
 		<div class="reveal">
 			<div class="slides">
         <section>
           <h1>Go Language Basics </h1>
           <h3>Basic constructs of the Go Programming Language </h3>
+					<h6>(Minimalistic and Opinionated Language)</h6>
         </section>
         <section data-markdown>
           <textarea data-template>
             ## Go Lang Hello World
             ```go
-            {{ template "samples/helloworld/helloworld.go" }}
+            {{ template "samples/helloworld/hello-world.go" }}
             ```
             ```
-            $ go run samples/helloworld/helloworld.go
+            $ go run samples/helloworld/hello-world.go
             ```
             ```
-            $ go build samples/helloworld/helloworld.go # See 'go help build'
+            $ go build samples/helloworld/hello-world.go # See 'go help build'
             $ ls -lh main
             $ ./main # Run the binary
             ```
@@ -31,17 +43,128 @@
         </section>
         <section data-markdown>
           <textarea data-template>
-            ## Go Packages
+            ## Go Imports
+            - Package identified by unique string called _import path_
             - Package name is last element of import path. 
-            - Invoked functions must be prefixed by the package name.
 
             ```go
-            {{ template "samples/packages/packages.go" }}
+            {{ template "samples/imports/imports.go" }}
             ```
           </textarea>
         </section>
-			</div>
-		</div>
+        <section data-markdown>
+          <textarea data-template>
+						### Go Imports 
+						- Packages outside standard library must have globally unique paths
+						- Import path should start with internet domain hosting the package
+```go
+import (
+	"golang.org/x/net/html"
+	"github.com/go-sql-driver/mysql"
+)
+```
+						- In Go, a name is exported if it begins with a capital letter. No special `public`, `protected` or `private` keywords
+```go
+fmt.Println(math.Pi)
+```
+          </textarea>
+        </section>
+				<section data-markdown style="text-align:left">
+					<textarea data-template>
+## Variables
+- A `var` declaration creates a variable of a type, attaches a name and sets its initial value: 
+- General form: `var name type = expression`
+- Either type or `= expression` can be omitted, but not both
+- If `type` is omitted, type is _inferred_ from expression
+- If `=expression` is omitted, variable gets a default initial value called *zero value* for the type
+- zero value: `0` for numbers, `false` for booleans, `""` for strings and `nil`
+for interfaces and reference types.
+					</textarea>
+				</section>
+				<section data-markdown>
+					<textarea data-template style="text-align:left">
+### Variables
+
+```go
+{{ template "samples/variables/variables.go" }}
+```
+					</textarea>
+				</section>
+				<section data-markdown style="text-align:left">
+					<textarea data-template>
+## Type Categories
+
+Go's types fall into 4 major categories:
+- Basic Types 
+ * numbers, strings and booleans
+- Aggregate Types
+ * Arrays and Structs
+- Reference Types
+ * Slices, Maps, Pointers, Functions and Channels
+- Interface Types
+ * Typed interfaces and interface{}
+					</textarea>
+				</section>
+        <section data-markdown>
+          <textarea data-template>
+						## Basic Types
+						```
+bool
+string
+int  int8  int16  int32  int64
+uint uint8 uint16 uint32 uint64 uintptr
+byte //alias for uint8
+rune // alias for int32
+     // represents a Unicode code point
+float32 float64
+complex64 complex128
+```
+          </textarea>
+        </section>
+				<section data-markdown>
+					<textarea data-template>
+### Basic Types
+
+```go
+{{ template "samples/basictypes/basic-types.go" }}
+```
+					</textarea>
+				</section>
+				<section data-markdown style="top:auto">
+					<textarea data-template>
+## Constants
+```go
+{{ template "samples/constants/constants.go" }}
+```
+					</textarea>
+				</section>
+
+				<section data-markdown>
+					<textarea data-template style="text-align:left">
+## For (only loop construct)
+```go
+{{ template "samples/for/for.go" }}
+```
+
+					</textarea>
+				</section>
+
+				<section data-markdown>
+					<textarea data-template>
+## If/Else 
+```go
+{{ template "samples/ifelse/ifelse.go" }}
+```
+					</textarea>
+				</section>
+
+			</div> <!-- end of div class=slides-->
+
+		</div>  <!-- end of div class=reveal -->
+
+
+
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.6.0/lib/js/head.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.6.0/js/reveal.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.6.0/plugin/markdown/marked.js"></script>
