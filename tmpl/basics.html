@@ -1,27 +1,42 @@
 <html>
 	<head>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.6.0/css/reveal.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.6.0/css/theme/white.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.6.0/css/theme/solarized.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.6.0/css/theme/moon.min.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.6.0/css/theme/simple.min.css" />
     <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.6.0/css/theme/sky.min.css" /> -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.6.0/lib/css/zenburn.min.css" />
 	</head>
 	<body>
 		<div class="reveal">
 			<div class="slides">
-        <section>Slide 2</section>
+        <section>
+          <h1>Go Language Basics </h1>
+          <h3>Basic constructs of the Go Programming Language </h3>
+        </section>
         <section data-markdown>
           <textarea data-template>
             ## Go Lang Hello World
             ```go
-            {{ template "samples/helloworld/main.go" }}
-            import(
-              "fmt"
-            )
-            fmt.Println("bingo");
+            {{ template "samples/helloworld/helloworld.go" }}
+            ```
+            ```
+            $ go run samples/helloworld/helloworld.go
+            ```
+            ```
+            $ go build samples/helloworld/helloworld.go # See 'go help build'
+            $ ls -lh main
+            $ ./main # Run the binary
+            ```
+          </textarea>
+        </section>
+        <section data-markdown>
+          <textarea data-template>
+            ## Go Packages
+            - Package name is last element of import path. 
+            - Invoked functions must be prefixed by the package name.
 
+            ```go
+            {{ template "samples/packages/packages.go" }}
             ```
           </textarea>
         </section>
