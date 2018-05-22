@@ -29,6 +29,45 @@
           <h3>Basic constructs of the Go Programming Language </h3>
 					<h6>(Minimalistic and Opinionated Language)</h6>
         </section>
+				<section data-markdown style="text-align:left">
+					<textarea data-template>
+## Setup
+
+##### Windows
+* Follow instructions at: https://golang.org/doc/install
+**OR**
+* WSL: Follow setup at https://github.com/lenkite/dotfiles/
+
+#####  MacOS
+* Use HomeBrew
+
+##### Edtior
+- Visual Studio Code: https://code.visualstudio.com/
+- VSC Go Extension.
+					</textarea>
+				</section>
+				<section data-markdown>
+					<textarea data-template>
+### Setup
+
+##### Windows
+```
+GOPATH=%USERPROFILE%
+cd %GOPATH%
+md github.com\lenkite\
+git clone https://github.com/lenkite/golang-course.git
+cd github.com\leknite\golang-course
+```
+##### Unix
+```
+GOPATH=~
+cd $GOPATH
+mkdir -p github.com/lenkite
+git clone https://github.com/lenkite/golang-course.git
+cd github.com/lenkite/golang-course
+```
+					</textarea>
+				</section>
         <section data-markdown>
           <textarea data-template>
             ## Go Lang Hello World
@@ -435,6 +474,96 @@ var dilbert Employee
 ```go
 {{ template "samples/structs/structs.go" }}
 ```
+					</textarea>
+				</section>
+
+
+				<section data-markdown>
+					<textarea data-template>
+## Panic
+- Builtin that stops ordiary flow of control and unwinds stack.
+- Analogous to Java's `RuntimeException`
+
+```go
+{{ template "samples/panic/panic.go" }}
+```
+
+					</textarea>
+				</section>
+
+
+				<section data-markdown>
+					<textarea data-template>
+## Defer
+
+- A defer statement defers the execution of a function until the surrounding function returns.
+- The deferred call's arguments are evaluated immediately, but the function
+call is not executed until the surrounding function returns.
+
+```go
+package main
+
+import "fmt"
+
+func main() {
+	defer fmt.Println("world")
+	fmt.Println("hello")
+}
+```
+					</textarea>
+				</section>
+				<section data-markdown>
+					<textarea data-template>
+### Defer
+```go
+{{ template "samples/defer/defer.go" }}
+```
+					</textarea>
+				</section>
+
+				<section data-markdown>
+					<textarea data-template>
+## Processing CLI Args
+```go
+{{ template "samples/cli1/cliargs.go" }}
+```
+					</textarea>
+				</section>
+
+				<section data-markdown>
+					<textarea data-template>
+### Processing CLI Args with flags
+```go
+{{ template "samples/cli2/flags.go" }}
+```
+					</textarea>
+				</section>
+
+				<section data-markdown>
+					<textarea data-template>
+## Exercises
+
+#### grab
+- grab is a CLI tool that downloads a resource and saves it to a file.
+```
+grab -out <outputName> <url>
+```
+- Leverage packages `flag`, `net/http`, `io`, `path`
+
+					</textarea>
+				</section>
+
+				<section data-markdown>
+					<textarea data-template>
+### Exercice listbig
+- listbig is a CLI tool that lists largest N files inside a directory.
+```
+listbig -head <N>  <dir>
+```
+- Use map[string]int for path to size
+- OR Use a struct `FileInfo` with 2 fields: `path string`, `size uint64`
+- Make listbig recursive by using `os.Walk`.
+
 					</textarea>
 				</section>
 
