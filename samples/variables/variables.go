@@ -37,4 +37,10 @@ func main() {
 	fmt.Println(f)
 	// := valid only INSIDE a function, not at package level
 
+	h, j := "second", "first"
+	fmt.Println(h, j) // Prints "second first"
+	fmt.Println("Swapping")
+	j, h = h, j
+	fmt.Println(h, j) // Prints "first second"
+
 }

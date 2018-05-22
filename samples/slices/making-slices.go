@@ -8,16 +8,16 @@ import "fmt"
 
 func main() {
 	a := make([]int, 5)
-	fmt.Printf("a. len=%d cap=%d %v\n", len(a), cap(a), a)
+	printSlice("a", a)
 
 	b := make([]int, 0, 7)
-	fmt.Printf("b. len=%d cap=%d %v\n", len(b), cap(b), b)
+	printSlice("b", b)
 
 	c := b[:2]
-	fmt.Printf("c. len=%d cap=%d %v\n", len(c), cap(c), c)
+	printSlice("c", c)
 
 	d := c[2:5]
-	fmt.Printf("d. len=%d cap=%d %v\n", len(d), cap(d), d)
+	printSlice("d", d)
 
 	//Slices can be composed into multi-dimensional data structures. The
 	//length of the inner slices can vary, unlike with multi-dimensional
@@ -31,4 +31,8 @@ func main() {
 		}
 	}
 	fmt.Println("2d: ", twoD)
+}
+
+func printSlice(n string, s []int) {
+	fmt.Printf("%q: len=%d cap=%d %v\n", n, len(s), cap(s), s)
 }

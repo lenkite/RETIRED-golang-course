@@ -3,8 +3,6 @@ package main
 import "fmt"
 
 func main() {
-	//Slices are dynamically-sized, flexible view into the elements of
-	//an array. Slices are reference types.
 
 	//Unlike arrays, slices are typed only by the elements they contain
 	//(not the number of elements). To create an empty slice with non-zero
@@ -52,7 +50,7 @@ func main() {
 	fmt.Println("sl3:", l)
 
 	//And this slices upto end of s.
-	l = s[:] //l is a copy of s
+	l = s[:] //l is like  s
 	fmt.Println("sl4:", l)
 
 	//We can declare and initialize a variable for slice in a single line
