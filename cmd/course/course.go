@@ -11,22 +11,29 @@ import (
 const basicsPath = "tmpl/basics.html"
 const addr = ":3000"
 
+var config = ppt.Config{Name: "go-basics", Path: basicsPath, RefExt: ".go", RefDir: "samples", HotReload: true}
+var pptBasics *ppt.Presentation
+
+func init() {
+	ppt, err := ppt.New(config)
+	if err != nil {
+		log.Panicf("Initializing ppt %q: %v", basicsPath, err)
+	}
+	pptBasics = ppt
+}
+
 func main() {
+	fs := http.FileServer(http.Dir("static"))
+	http.Handle("/static/", http.StripPrefix("/static/", fs))
 	http.HandleFunc("/", serveGoBasicsPresentation)
 	fmt.Printf("Serving %q on %q...\n", basicsPath, addr)
 	log.Fatal(http.ListenAndServe(addr, nil))
 }
 
 func serveGoBasicsPresentation(w http.ResponseWriter, r *http.Request) {
-	config := ppt.Config{Name: "go-basics", Path: basicsPath, RefExt: ".go", RefDir: "samples", HotReload: false}
 	fmt.Printf("Creating ppt for %q...\n", basicsPath)
-	pptBasics, err := ppt.New(config)
-	fmt.Printf("Created %v...\n", pptBasics)
-	if err != nil {
-		log.Panicf("Loading %q: %v", basicsPath, err)
-		return
-	}
-	_, err = pptBasics.WriteTo(w)
+	_, err := pptBasics.WriteTo(w)
+	fmt.Printf("Wrote ppt %q to response", pptBasics.Name)
 	if err != nil {
 		log.Panicf("Writing %q: %v", pptBasics.Name, err)
 	}

@@ -38,70 +38,143 @@ type Presentation struct {
 	root *template.Template
 
 	// refPaths is a map of child template paths embedded in the presentation to their last modified times
-	refPaths map[string]time.Time
+	//refPaths map[string]time.Time
+	refs map[string]Ref
+}
+
+// Ref encapsulates a HTML template reference, its path and last modified time.
+type Ref struct {
+	Path    string
+	ModTime time.Time
+	tmpl    *template.Template
 }
 
 // New returns a new Presentation for the given configuration
 // All templates are loaded and the presentation can be written to an io.Writer
 func New(config Config) (*Presentation, error) {
-	fmt.Printf("parsing files from %q\n", config.Path)
-	tmpl, err := template.ParseFiles(config.Path)
-	fmt.Printf("Parsed template %v\n", tmpl)
-	if err != nil {
-		fmt.Printf("error1\n")
-		return nil, fmt.Errorf("Loading ppt from: %q: %v", config.Path, err)
-	}
-	if !strings.HasPrefix(config.RefExt, ".") {
+	var ppt Presentation
+	ppt.Config = config
+	if !strings.HasPrefix(ppt.RefExt, ".") {
 		fmt.Println("Adding dot to RefExt")
-		config.RefExt = "." + config.RefExt
+		ppt.RefExt = "." + ppt.RefExt
 	}
-	fmt.Println("Calling addRefTemplates")
-	refPaths, err := addRefTemplates(tmpl, config.RefDir, config.RefExt)
-	if err != nil {
-		fmt.Printf("error2\n")
-		return nil, fmt.Errorf("Loading templates from: %q: %v", config.RefDir, err)
+	if err := ppt.createOrUpdate(); err != nil {
+		return nil, err
 	}
-	return &Presentation{Config: config, root: tmpl, refPaths: refPaths}, nil
+	return &ppt, nil
 }
 
+func (ppt *Presentation) createOrUpdate() error {
+	if ppt.refs == nil {
+		ppt.refs = make(map[string]Ref)
+	}
+	if err := addUpdateRefs(ppt.refs, ppt.RefDir, ppt.RefExt); err != nil {
+		return fmt.Errorf("Loading templates from: %q: %v", ppt.RefDir, err)
+	}
+	return ppt.createRootTemplate()
+}
+
+//WriteTo Writes the serialized presentatio html to given writer
 func (ppt *Presentation) WriteTo(w io.Writer) (n int64, err error) {
+	if err := ppt.ReloadChanges(); err != nil {
+		return 0, err
+	}
 	var buf bytes.Buffer
-	err = ppt.root.Execute(&buf, ppt.Name)
-	if err != nil {
-		return -1., fmt.Errorf("Writing %q to %v: %v", ppt.Name, w, err)
+	if err := ppt.root.Execute(&buf, ppt.Name); err != nil {
+		return 0, fmt.Errorf("Writing %q to %v: %v", ppt.Name, w, err)
 	}
 	return buf.WriteTo(w)
 }
 
-func addRefTemplates(parent *template.Template, dir string, ext string) (map[string]time.Time, error) {
-	refPaths := make(map[string]time.Time)
+func (ppt *Presentation) ReloadChanges() error {
+	if !ppt.HotReload {
+		return nil
+	}
+	return ppt.createOrUpdate()
+}
+
+func (ppt *Presentation) createRootTemplate() error {
+	fmt.Printf("parsing files from %q\n", ppt.Path)
+	tmpl, err := template.ParseFiles(ppt.Path)
+	fmt.Printf("Parsed template %v\n", tmpl)
+	if err != nil {
+		return fmt.Errorf("Loading ppt from: %q: %v", ppt.Path, err)
+	}
+	for _, ref := range ppt.refs {
+		if _, err = tmpl.AddParseTree(ref.Path, ref.tmpl.Tree); err != nil {
+			return fmt.Errorf("Added parse tree of %q: %v", ref.Path, err)
+		}
+	}
+	ppt.root = tmpl
+	return nil
+}
+
+func addUpdateRefs(refs map[string]Ref, dir string, ext string) error {
 	err := filepath.Walk(dir, func(path string, fi os.FileInfo, err error) error {
 		if filepath.Ext(path) != ext {
 			return nil
 		}
-		refPaths[path] = fi.ModTime()
-		return addRefTemplate(parent, path)
+		pathModTime := fi.ModTime()
+		if r, ok := refs[path]; ok { //ref already in map
+			if r.ModTime.Equal(pathModTime) {
+				return nil //if ref time hasn't change return
+			}
+		}
+		fmt.Printf("Loading Ref %q...", path)
+		refTmpl, err := createRefTemplate(path, fi.ModTime())
+		if err != nil {
+			return err
+		}
+		refs[path] = Ref{Path: path, ModTime: pathModTime, tmpl: refTmpl}
+		return nil
 	})
 	if err != nil {
-		return nil, fmt.Errorf("Walking dir %q: %v", dir, err)
-	}
-	return refPaths, nil
-}
-
-func addRefTemplate(parent *template.Template, refPath string) error {
-	sample, err := ioutil.ReadFile(refPath)
-	if err != nil {
-		return fmt.Errorf("Cannot read go file %q: %v", refPath, err)
-	}
-	t, err := template.New(refPath).Parse(string(sample))
-	if err != nil {
-		return fmt.Errorf("Parsing %q: %v", refPath, err)
-	}
-	if _, err = parent.AddParseTree(refPath, t.Tree); err != nil {
-		return fmt.Errorf("Adding parse tree of %q: %v", refPath, err)
+		return fmt.Errorf("Walking dir %q: %v", dir, err)
 	}
 	return nil
 }
+
+func createRefTemplate(refPath string, modTime time.Time) (*template.Template, error) {
+	sample, err := ioutil.ReadFile(refPath)
+	if err != nil {
+		return nil, fmt.Errorf("Cannot read go file %q: %v", refPath, err)
+	}
+	t, err := template.New(refPath).Parse(string(sample))
+	if err != nil {
+		return nil, fmt.Errorf("Parsing %q: %v", refPath, err)
+	}
+	return t, nil
+}
+
+// func addRefTemplates(parent *template.Template, dir string, ext string) (map[string]time.Time, error) {
+// 	refPaths := make(map[string]time.Time)
+// 	err := filepath.Walk(dir, func(path string, fi os.FileInfo, err error) error {
+// 		if filepath.Ext(path) != ext {
+// 			return nil
+// 		}
+// 		refPaths[path] = fi.ModTime()
+// 		return addRefTemplate(parent, path)
+// 	})
+// 	if err != nil {
+// 		return nil, fmt.Errorf("Walking dir %q: %v", dir, err)
+// 	}
+// 	return refPaths, nil
+// }
+
+// func addRefTemplate(parent *template.Template, refPath string) error {
+// 	sample, err := ioutil.ReadFile(refPath)
+// 	if err != nil {
+// 		return fmt.Errorf("Cannot read go file %q: %v", refPath, err)
+// 	}
+// 	t, err := template.New(refPath).Parse(string(sample))
+// 	if err != nil {
+// 		return fmt.Errorf("Parsing %q: %v", refPath, err)
+// 	}
+// 	if _, err = parent.AddParseTree(refPath, t.Tree); err != nil {
+// 		return fmt.Errorf("Adding parse tree of %q: %v", refPath, err)
+// 	}
+// 	return nil
+// }
 
 func listFiles(dir string, ext string) ([]string, error) {
 	var files []string
