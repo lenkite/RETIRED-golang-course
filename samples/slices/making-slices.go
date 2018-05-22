@@ -1,3 +1,4 @@
+// samples/slices/making-slices.go
 package main
 
 import "fmt"

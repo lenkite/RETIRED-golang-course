@@ -1,3 +1,4 @@
+// samples/slices/nil-slice.go
 package main
 
 import "fmt"

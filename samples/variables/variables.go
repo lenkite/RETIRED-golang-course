@@ -1,3 +1,4 @@
+// samples/variables/variables.go
 package main
 
 import "fmt"

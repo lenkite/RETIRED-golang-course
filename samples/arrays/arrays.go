@@ -1,3 +1,4 @@
+// samples/arrays/arrays.go
 package main
 
 import "fmt"

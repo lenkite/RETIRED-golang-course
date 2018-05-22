@@ -1,3 +1,4 @@
+// samples/maps/maps.go
 package main
 
 import "fmt"

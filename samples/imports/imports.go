@@ -1,3 +1,4 @@
+// samples/imports/imports.go
 package main
 
 import ( // "factorized" import statement for multiple imports

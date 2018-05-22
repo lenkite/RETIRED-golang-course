@@ -1,3 +1,4 @@
+// samples/basictypes/basic-types.go
 package main
 
 import (

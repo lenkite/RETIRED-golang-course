@@ -1,3 +1,4 @@
+// samples/switch/switch.go
 package main
 
 import (

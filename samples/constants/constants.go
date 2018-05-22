@@ -1,3 +1,4 @@
+// samples/constants/constants.go
 package main
 
 import (
